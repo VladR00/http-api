@@ -1,40 +1,42 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+
+	cors "webrestapi/internal/cors"
 )
 
 func HandlerGETRandomQuote(w http.ResponseWriter, r *http.Request) {
-	(w).Header().Set("Access-Control-Allow-Origin", "*")
-	(w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	(w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-
+	cors.EnableCors(w)
+	fmt.Println("gigi")
 }
 
 func HandlerQuote(w http.ResponseWriter, r *http.Request) {
-	(w).Header().Set("Access-Control-Allow-Origin", "*")
-	(w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	(w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	cors.EnableCors(w)
+
+	switch r.Method {
+	case "GET":
+		HGETQuote(w, r)
+	case "POST":
+		HPOSTQuote(w, r)
+	case "DELETE":
+		HDELETEQuote(w, r)
+	}
 
 }
 
 func HPOSTQuote(w http.ResponseWriter, r *http.Request) {
-	(w).Header().Set("Access-Control-Allow-Origin", "*")
-	(w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	(w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	cors.EnableCors(w)
 
 }
 
 func HGETQuote(w http.ResponseWriter, r *http.Request) {
-	(w).Header().Set("Access-Control-Allow-Origin", "*")
-	(w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	(w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	cors.EnableCors(w)
 
 }
 
 func HDELETEQuote(w http.ResponseWriter, r *http.Request) {
-	(w).Header().Set("Access-Control-Allow-Origin", "*")
-	(w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	(w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	cors.EnableCors(w)
 
 }
