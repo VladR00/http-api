@@ -1,12 +1,21 @@
 package storage
 
+import "sync"
+
 var (
-	MapByID     = map[int64]Quotes{}
-	MapByAuthor = map[string]Quotes{}
+	MapByID  = map[int]Quotes{}
+	MapMutex sync.Mutex
 )
 
 type Quotes struct {
-	ID     int64
-	Author string `json: "author"`
-	Quote  string `json: "quote"`
+	ID     int
+	Author string
+	Quote  string
+}
+
+func (s *Quotes) MapCreate() { //By ID
+	MapByID[s.ID] = *s
+}
+func (s *Quotes) MapDelete() { //By ID
+	delete(MapByID, s.ID)
 }
