@@ -24,9 +24,6 @@ func HandlerQuote(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("GET request")
 		HGETQuote(w, r)
-	case "DELETE":
-		fmt.Println("DELETE request")
-		HDELETEQuote(w, r)
 	}
 
 }
@@ -74,10 +71,22 @@ func HPOSTQuote(w http.ResponseWriter, r *http.Request) {
 
 func HGETQuote(w http.ResponseWriter, r *http.Request) {
 	cors.EnableCors(w)
+	response := map[string]string{"error": "Only GET method allowed"}
 
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	var quotes []storage.Quotes
+	for _, v := range storage.MapByID {
+		append(quotes, v)
+	}
 }
 
-func HDELETEQuote(w http.ResponseWriter, r *http.Request) {
+func HandlerDELETEQuote(w http.ResponseWriter, r *http.Request) {
 	cors.EnableCors(w)
+	fmt.Println("delete?")
 
 }
