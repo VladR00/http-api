@@ -48,16 +48,13 @@ func HandlerGETRandomQuote(w http.ResponseWriter, r *http.Request) {
 
 func HandlerQuote(w http.ResponseWriter, r *http.Request) {
 	cors.EnableCors(w)
-	fmt.Println("Handler Quote")
+	fmt.Println(r.Method)
 	switch r.Method {
 	case "POST":
-		fmt.Println("POST request")
 		HPOSTQuote(w, r)
 	case "GET":
-		fmt.Println("GET request")
 		HGETQuote(w, r)
 	}
-
 }
 
 func HPOSTQuote(w http.ResponseWriter, r *http.Request) {
@@ -81,7 +78,6 @@ func HPOSTQuote(w http.ResponseWriter, r *http.Request) {
 		response = map[string]string{"error": "Bad request"}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
-		fmt.Println(err)
 		return
 	}
 
@@ -112,9 +108,16 @@ func HGETQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var quotes []storage.Quotes
+	author := r.URL.Query().Get("author")
 
 	for _, v := range storage.MapByID {
-		quotes = append(quotes, v)
+		if author == "" {
+			quotes = append(quotes, v)
+			continue
+		}
+		if author == v.Author {
+			quotes = append(quotes, v)
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -134,7 +137,6 @@ func HandlerDELETEQuote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	idstr := strings.TrimPrefix(r.URL.Path, "/quotes/")
-	fmt.Println("delete")
 	id, err := strconv.Atoi(idstr)
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
