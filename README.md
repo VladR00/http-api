@@ -15,13 +15,21 @@ curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d
 ```
 
 # Get ALL quotes (JQ - format outputing. Advice: download)
-`curl http://localhost:8080/quotes | jq`
+```bash
+curl http://localhost:8080/quotes | jq
+```
 
 # Get random quote
-`curl http://localhost:8080/quotes/random | jq`
+```bash
+curl http://localhost:8080/quotes/random | jq
+```
 
 # Output quotes from a specific author
-`curl http://localhost:8080/quotes?author=Confucius | jq`
+```bash
+curl http://localhost:8080/quotes?author=Confucius | jq
+```
 
 # Delete quote by ID
-`curl -X DELETE http://localhost:8080/quotes/1 | jq`
+```bash 
+curl -X DELETE http://localhost:8080/quotes/1 | jq
+```
