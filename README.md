@@ -4,7 +4,7 @@ go run main.go
 ```
 
 # Comands
-# JQ - format output for JSON. Advice: download or suffer
+
 # Fast add quotes
 ```bash
 curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d '{"author":"Confucius", "quote":"Life is simple, but we insist on making it complicated."}'
@@ -15,7 +15,7 @@ curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d
 curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d '{"author":"Shuka", "quote":"Life is rock and roll."}'
 ```
 
-# Get ALL quotes (JQ - format outputing. Advice: download)
+# Get ALL quotes (JQ - format output for JSON. Advice: download or suffer)
 ```bash
 curl http://localhost:8080/quotes | jq
 ```
