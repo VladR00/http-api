@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	cors "webrestapi/internal/cors"
 	storage "webrestapi/internal/storage"
@@ -80,13 +82,53 @@ func HGETQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var quotes []storage.Quotes
+
 	for _, v := range storage.MapByID {
-		append(quotes, v)
+		quotes = append(quotes, v)
 	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(quotes) // curl http://localhost:8080/quotes | jq - format output
 }
 
 func HandlerDELETEQuote(w http.ResponseWriter, r *http.Request) {
 	cors.EnableCors(w)
-	fmt.Println("delete?")
+	response := map[string]string{"error": "Only DELETE method allowed"}
 
+	if r.Method != http.MethodDelete {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	idstr := strings.TrimPrefix(r.URL.Path, "/quotes/")
+	fmt.Println("delete")
+	id, err := strconv.Atoi(idstr)
+	if err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		w.Header().Set("Content-Type", "application/json")
+		response = map[string]string{"error": "Bad option. You should use the ID number that needs to be deleted."}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	deleting, exist := storage.MapByID[id]
+
+	if !exist {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		response = map[string]string{"error": "ID isn't found. Try another."}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	response = map[string]string{"message": fmt.Sprintf("%s quote was removed with id: %d", deleting.Author, deleting.ID)}
+	storage.MapMutex.Lock()
+	deleting.MapDelete()
+	storage.MapMutex.Unlock()
+	json.NewEncoder(w).Encode(response)
 }
