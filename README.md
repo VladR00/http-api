@@ -15,7 +15,7 @@ curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d
 curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d '{"author":"Shuka", "quote":"Life is rock and roll."}'
 ```
 
-# Get ALL quotes (JQ - format output for JSON. Advice: download or suffer)
+# Get ALL quotes (JQ - formatted JSON output. Advice: download or suffer)
 ```bash
 curl http://localhost:8080/quotes | jq
 ```
