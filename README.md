@@ -1,6 +1,7 @@
-# How to run?
-## Get in cmd dir and 
-`go run main.go`
+# How to run? Get in cmd dir and 
+```bash 
+go run main.go
+```
 
 # Comands
 # JQ - format output for JSON. Advice: download or suffer
