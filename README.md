@@ -1,5 +1,5 @@
 # How to run?
-Get in cmd dir and 
+## Get in cmd dir and 
 `go run main.go`
 
 # Comands
