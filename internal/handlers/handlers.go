@@ -3,9 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	cors "webrestapi/internal/cors"
 	storage "webrestapi/internal/storage"
@@ -13,7 +15,35 @@ import (
 
 func HandlerGETRandomQuote(w http.ResponseWriter, r *http.Request) {
 	cors.EnableCors(w)
-	fmt.Println("gigi")
+	response := map[string]string{"error": "Only GET method allowed"}
+
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
+	var keys []int
+	for k := range storage.MapByID {
+		keys = append(keys, k)
+	}
+	if len(keys) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		response = map[string]string{"error": "You haven't added any quotes."}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	randKey := keys[rand.Intn(len(keys))]
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	response = map[string]string{"message": "Your random quote."}
+	json.NewEncoder(w).Encode(storage.MapByID[randKey])
 }
 
 func HandlerQuote(w http.ResponseWriter, r *http.Request) {
