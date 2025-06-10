@@ -3,34 +3,17 @@
 go run main.go
 ```
 
-# Comands
+# Comands (JQ - formatted JSON output. Advice: download or suffer)
 
-# Fast add quotes
+# Add task (Duration, seconds - int)
 ```bash
-curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d '{"author":"Confucius", "quote":"Life is simple, but we insist on making it complicated."}'
-curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d '{"author":"Shaulin", "quote":"Life is good."}'
-curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d '{"author":"Shuka", "quote":"Life is bad."}'
-curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d '{"author":"Confucius", "quote":"Life is gorgeus and simple."}'
-curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d '{"author":"Shaulin", "quote":"Life is good and beauty."}'
-curl -X POST http://localhost:8080/quotes -H "Content-Type: application/json" -d '{"author":"Shuka", "quote":"Life is rock and roll."}'
+curl -X POST http://localhost:8080/task -H "Content-Type: application/json" -d '{"duration":15}'
 ```
-
-# Get ALL quotes (JQ - formatted JSON output. Advice: download or suffer)
+# Get ALL tasks 
 ```bash
-curl http://localhost:8080/quotes | jq
+curl http://localhost:8080/task | jq
 ```
-
-# Get random quote
-```bash
-curl http://localhost:8080/quotes/random | jq
-```
-
-# Output quotes from a specific author
-```bash
-curl http://localhost:8080/quotes?author=Confucius | jq
-```
-
-# Delete quote by ID
+# Delete task by ID
 ```bash 
-curl -X DELETE http://localhost:8080/quotes/1 | jq
+curl -X DELETE http://localhost:8080/task/1 | jq
 ```
