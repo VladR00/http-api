@@ -15,7 +15,7 @@ import (
 
 func HandlerGETRandomQuote(w http.ResponseWriter, r *http.Request) {
 	cors.EnableCors(w)
-	response := map[string]string{"error": "Only GET method allowed"}
+	response := map[string]string{"error": "Only GET method allowed"} /
 
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
