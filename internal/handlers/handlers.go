@@ -6,14 +6,11 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
-	cors "httpapi/internal/cors"
 	storage "httpapi/internal/storage"
 )
 
 func HandlerTask(w http.ResponseWriter, r *http.Request) {
-	cors.EnableCors(w)
 	fmt.Println(r.Method)
 	switch r.Method {
 	case "POST":
@@ -24,7 +21,6 @@ func HandlerTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func HPOSTTask(w http.ResponseWriter, r *http.Request) {
-	cors.EnableCors(w)
 	response := map[string]string{"error": "Only POST method allowed"}
 
 	if r.Method != http.MethodPost {
@@ -34,9 +30,7 @@ func HPOSTTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data struct {
-		Duration int64 `json:"duration"`
-	}
+	var data storage.Data
 
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -46,44 +40,15 @@ func HPOSTTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	storage.MapMutex.Lock() //lock for ID
-	task := storage.Task{
-		ID:          len(storage.MapByID) + 1,
-		Date:        time.Now().Unix(),
-		AllDuration: data.Duration,
-		Remaining:   data.Duration,
-		IsComplete:  false,
-	}
-	task.MapCreate()
-	storage.MapMutex.Unlock()
-
-	go func() { // remaining -= 2;update.
-		for task.Remaining > 0 {
-			if _, exists := storage.MapByID[task.ID]; exists {
-				time.Sleep(time.Second * 2)
-				task.Remaining = task.Remaining - 2
-				task.MapUpdate()
-			} else {
-				break
-			}
-		}
-		if task.Remaining <= 0 {
-			fmt.Printf("Task %d successfully end\n", task.ID)
-			task.IsComplete = true
-			task.MapUpdate()
-		} else {
-			fmt.Printf("Task %d was deleted\n", task.ID)
-		}
-	}()
+	id := data.AddTask()
 
 	w.WriteHeader(http.StatusOK)
-	response = map[string]string{"message": fmt.Sprintf("Task with ID %d successfully added", task.ID)}
+	response = map[string]string{"message": fmt.Sprintf("Task with ID %d successfully added", id)}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
 
 func HGETTask(w http.ResponseWriter, r *http.Request) {
-	cors.EnableCors(w)
 	response := map[string]string{"error": "Only GET method allowed"}
 
 	if r.Method != http.MethodGet {
@@ -92,19 +57,8 @@ func HGETTask(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-	var tasks []storage.TaskOutput
 
-	for _, v := range storage.MapByID {
-		percent := (1 - (float32(v.Remaining) / float32(v.AllDuration))) * 100
-		task := storage.TaskOutput{
-			ID:         v.ID,
-			Date:       time.Unix(v.Date, 0).Format("2006-01-02 15:04"),
-			Remaining:  v.Remaining,
-			Percent:    int(percent),
-			IsComplete: v.IsComplete,
-		}
-		tasks = append(tasks, task)
-	}
+	tasks := storage.GetTasks()
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
@@ -112,7 +66,6 @@ func HGETTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandlerDELETETask(w http.ResponseWriter, r *http.Request) {
-	cors.EnableCors(w)
 	response := map[string]string{"error": "Only DELETE method allowed"}
 
 	if r.Method != http.MethodDelete {
@@ -132,22 +85,20 @@ func HandlerDELETETask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deleting, exist := storage.MapByID[id]
-
-	if !exist {
+	if v, exist := storage.MapByID[id]; exist {
+		v.MapDelete()
+	} else {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Header().Set("Content-Type", "application/json")
-		response = map[string]string{"error": "ID isn't found. Try another."}
+		response = map[string]string{"error": fmt.Sprintf("Task with ID %d isn't found. Try another.", id)}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	response = map[string]string{"message": fmt.Sprintf("Task with ID %d was removed", deleting.ID)}
-	storage.MapMutex.Lock()
-	deleting.MapDelete()
-	storage.MapMutex.Unlock()
+	response = map[string]string{"message": fmt.Sprintf("Task with ID %d was removed", id)}
+
 	json.NewEncoder(w).Encode(response)
-	fmt.Printf("Task with ID %d was removed\n", deleting.ID)
+	fmt.Printf("Task with ID %d was removed\n", id)
 }

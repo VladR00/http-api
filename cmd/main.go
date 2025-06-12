@@ -14,5 +14,4 @@ func main() {
 
 	fmt.Println("Server start at 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
-	select {}
 }
