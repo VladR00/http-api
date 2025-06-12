@@ -100,5 +100,4 @@ func HandlerDELETETask(w http.ResponseWriter, r *http.Request) {
 	response = map[string]string{"message": fmt.Sprintf("Task with ID %d was removed", id)}
 
 	json.NewEncoder(w).Encode(response)
-	fmt.Printf("Task with ID %d was removed\n", id)
 }
