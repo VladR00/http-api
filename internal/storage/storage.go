@@ -20,11 +20,11 @@ type Task struct { //Default Task sctruct
 }
 
 type TaskOutput struct { // Using in GET request.
-	ID         int
-	Date       string
-	Remaining  int64
-	Percent    int
-	IsComplete bool
+	ID         int    `json:"id"`
+	Date       string `json:"date"`
+	Remaining  int64  `json:"remaining"`
+	Percent    int    `json:"percent"`
+	IsComplete bool   `json:"isComplete"`
 }
 
 type Data struct {

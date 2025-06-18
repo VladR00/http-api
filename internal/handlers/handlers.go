@@ -21,83 +21,52 @@ func HandlerTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func HPOSTTask(w http.ResponseWriter, r *http.Request) {
-	response := map[string]string{"error": "Only POST method allowed"}
-
 	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		DefaultResponse{Type: "", Message: r.Method}.Response(w, 0)
 		return
 	}
 
 	var data storage.Data
 
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response = map[string]string{"error": "Bad request, use seconds."}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		DefaultResponse{Type: "Error", Message: "Bad request, use seconds."}.Response(w, http.StatusBadRequest)
 		return
 	}
 
 	id := data.AddTask()
 
-	w.WriteHeader(http.StatusOK)
-	response = map[string]string{"message": fmt.Sprintf("Task with ID %d successfully added", id)}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	DefaultResponse{Type: "Message", Message: fmt.Sprintf("Task with ID %d successfully added", id)}.Response(w, http.StatusOK)
 }
 
 func HGETTask(w http.ResponseWriter, r *http.Request) {
-	response := map[string]string{"error": "Only GET method allowed"}
-
 	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		DefaultResponse{Type: "", Message: r.Method}.Response(w, 0)
 		return
 	}
 
 	tasks := storage.GetTasks()
-
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tasks) // curl http://localhost:8080/task | jq - format output
+	TaskOutputResopnse{tasks}.Response(w)
 }
 
 func HandlerDELETETask(w http.ResponseWriter, r *http.Request) {
-	response := map[string]string{"error": "Only DELETE method allowed"}
-
 	if r.Method != http.MethodDelete {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		DefaultResponse{Type: "", Message: r.Method}.Response(w, 0)
 		return
 	}
 
 	idstr := strings.TrimPrefix(r.URL.Path, "/task/")
 	id, err := strconv.Atoi(idstr)
 	if err != nil {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Header().Set("Content-Type", "application/json")
-		response = map[string]string{"error": "Bad option. You should use the ID number that needs to be deleted."}
-		json.NewEncoder(w).Encode(response)
+		DefaultResponse{Type: "Error", Message: "Bad option. You should use the ID number that needs to be deleted."}.Response(w, http.StatusUnprocessableEntity)
 		return
 	}
 
 	if v, exist := storage.MapByID[id]; exist {
 		v.MapDelete()
 	} else {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Header().Set("Content-Type", "application/json")
-		response = map[string]string{"error": fmt.Sprintf("Task with ID %d isn't found. Try another.", id)}
-		json.NewEncoder(w).Encode(response)
+		DefaultResponse{Type: "Error", Message: fmt.Sprintf("Task with ID %d isn't found. Try another.", id)}.Response(w, http.StatusBadRequest)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	response = map[string]string{"message": fmt.Sprintf("Task with ID %d was removed", id)}
-
-	json.NewEncoder(w).Encode(response)
+	DefaultResponse{Type: "Message", Message: fmt.Sprintf("Task with ID %d was removed", id)}.Response(w, http.StatusOK)
 }
