@@ -15,10 +15,6 @@ type TaskOutputResopnse struct {
 	Task []storage.TaskOutput `json:"tasks"`
 }
 
-type CustomResponseWriter struct {
-	http.ResponseWriter
-}
-
 func (response DefaultResponse) Response(w http.ResponseWriter, header int) {
 	w.Header().Set("Content-Type", "application/json")
 	if header == 0 {
